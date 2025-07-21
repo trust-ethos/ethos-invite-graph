@@ -9,11 +9,11 @@ export const handler = async (
 ): Promise<Response> => {
   const url = new URL(req.url);
   const query = url.searchParams.get("query");
-  
+
   if (!query || query.length < 2) {
     return new Response(
       JSON.stringify({ error: "Query must be at least 2 characters" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      { status: 400, headers: { "Content-Type": "application/json" } },
     );
   }
 
@@ -37,36 +37,42 @@ export const handler = async (
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`❌ Ethos API Error: ${response.status} - ${errorText}`);
-      
+
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: `Ethos API error: ${response.status}`,
           details: errorText,
-          query: query 
+          query: query,
         }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
     const data: EthosUserSearchResponse = await response.json();
-    console.log(`✅ Ethos API Response: Found ${data.values?.length || 0} users out of ${data.total} total`);
-    
+    console.log(
+      `✅ Ethos API Response: Found ${
+        data.values?.length || 0
+      } users out of ${data.total} total`,
+    );
+
     return new Response(JSON.stringify(data), {
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
     });
   } catch (error) {
     console.error("💥 Search error:", error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error
+      ? error.message
+      : "Unknown error";
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: "Failed to search users",
         details: errorMessage,
-        query: query 
+        query: query,
       }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
-}; 
+};

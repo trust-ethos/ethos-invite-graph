@@ -6,4 +6,4 @@ import manifest from "./fresh.gen.ts";
 
 import "$std/dotenv/load.ts";
 
-await start(manifest, config); 
+await start(manifest, config);

@@ -3,15 +3,15 @@ import { FreshContext } from "$fresh/server.ts";
 const ETHOS_API_BASE_V2 = "https://api.ethos.network/api/v2";
 
 export const handler = async (
-  req: Request,
+  _req: Request,
   ctx: FreshContext,
 ): Promise<Response> => {
   const profileId = ctx.params.profileId;
-  
+
   if (!profileId || isNaN(Number(profileId))) {
     return new Response(
       JSON.stringify({ error: "Valid profile ID is required" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      { status: 400, headers: { "Content-Type": "application/json" } },
     );
   }
 
@@ -39,14 +39,16 @@ export const handler = async (
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`❌ Activities API Error: ${response.status} - ${errorText}`);
-      
+      console.error(
+        `❌ Activities API Error: ${response.status} - ${errorText}`,
+      );
+
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: `Activities API error: ${response.status}`,
-          details: errorText 
+          details: errorText,
         }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -65,33 +67,37 @@ export const handler = async (
           avatarUrl: activity.subject.avatarUrl,
           score: activity.subject.score,
           invitedAt: activity.createdAt,
-          activityId: activity.id
+          activityId: activity.id,
         });
       }
     }
 
     console.log(`✅ Processed ${invitedUsers.length} invited users`);
-    
-    return new Response(JSON.stringify({
-      inviter: { profileId: Number(profileId), userkey },
-      invitedUsers,
-      total: invitedUsers.length
-    }), {
-      headers: { 
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
 
+    return new Response(
+      JSON.stringify({
+        inviter: { profileId: Number(profileId), userkey },
+        invitedUsers,
+        total: invitedUsers.length,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      },
+    );
   } catch (error) {
     console.error("💥 Invitations fetch error:", error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage = error instanceof Error
+      ? error.message
+      : "Unknown error";
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: "Failed to fetch invitations",
-        details: errorMessage 
+        details: errorMessage,
       }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
-}; 
+};

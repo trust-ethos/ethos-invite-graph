@@ -1,10 +1,12 @@
 # Ethos Invite Graph
 
-A web application to visualize invitation networks on the Ethos platform using interactive graphs and network analysis.
+A web application to visualize invitation networks on the Ethos platform using
+interactive graphs and network analysis.
 
 ## Overview
 
 This project provides a beautiful, modern interface to:
+
 - Search for Ethos users with intelligent typeahead
 - Visualize invitation connections and trust relationships
 - Analyze network patterns and user interactions
@@ -12,7 +14,8 @@ This project provides a beautiful, modern interface to:
 
 ## Tech Stack
 
-- **Framework**: [Fresh](https://fresh.deno.dev/) (Deno's full-stack web framework)
+- **Framework**: [Fresh](https://fresh.deno.dev/) (Deno's full-stack web
+  framework)
 - **Runtime**: [Deno](https://deno.land/)
 - **Language**: TypeScript
 - **Styling**: [Twind](https://twind.dev/) (Tailwind CSS-in-JS)
@@ -22,6 +25,7 @@ This project provides a beautiful, modern interface to:
 ## Features
 
 ### ✅ Completed
+
 - **Smart User Search**: Typeahead search with Ethos API integration
 - **Beautiful UI**: Modern, responsive design with smooth animations
 - **User Selection**: Click or keyboard navigation to select users
@@ -29,6 +33,7 @@ This project provides a beautiful, modern interface to:
 - **TypeScript Types**: Comprehensive type definitions for Ethos API
 
 ### 🚧 In Development
+
 - Interactive network graphs using D3.js or similar
 - Invitation flow analysis and statistics
 - Trust relationship visualization
@@ -37,17 +42,21 @@ This project provides a beautiful, modern interface to:
 ## Getting Started
 
 ### Prerequisites
-- [Deno](https://deno.land/manual/getting_started/installation) installed on your system
+
+- [Deno](https://deno.land/manual/getting_started/installation) installed on
+  your system
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd ethos-invite-graph
 ```
 
 2. Start the development server:
+
 ```bash
 deno task start
 ```
@@ -103,11 +112,13 @@ The application integrates with the Ethos Network API v2:
 - **No Authentication**: Currently using public endpoints only
 
 ### Ethos API Features Used
+
 - User search with query parameters
 - User profile information
 - Score and trust level data
 
 ### Future API Integration
+
 - Activities API for invitation data
 - Reviews API for trust relationships
 - XP API for user engagement metrics
@@ -117,22 +128,26 @@ The application integrates with the Ethos Network API v2:
 ### Deno Deploy
 
 1. Install the Deno Deploy CLI:
+
 ```bash
 deno install --allow-read --allow-write --allow-env --allow-net --allow-run --no-check -r -f https://deno.land/x/deploy/deployctl.ts
 ```
 
 2. Deploy to Deno Deploy:
+
 ```bash
 deployctl deploy --project=ethos-invite-graph main.ts
 ```
 
 ### Environment Variables
 
-Currently no environment variables are required. The application uses public Ethos API endpoints.
+Currently no environment variables are required. The application uses public
+Ethos API endpoints.
 
 ## Development Roadmap
 
 ### Phase 1: Foundation ✅
+
 - [x] Project setup with Fresh and Deno
 - [x] User search with typeahead
 - [x] Basic UI and routing
@@ -140,18 +155,21 @@ Currently no environment variables are required. The application uses public Eth
 - [x] TypeScript types
 
 ### Phase 2: Network Analysis (Next)
+
 - [ ] Invitation data fetching
 - [ ] Graph visualization with D3.js
 - [ ] Network statistics calculation
 - [ ] Interactive node exploration
 
 ### Phase 3: Advanced Features
+
 - [ ] Real-time data updates
 - [ ] User comparison tools
 - [ ] Export functionality
 - [ ] Advanced filtering options
 
 ### Phase 4: Social Features
+
 - [ ] User authentication
 - [ ] Saved analyses
 - [ ] Sharing capabilities
@@ -167,7 +185,8 @@ Currently no environment variables are required. The application uses public Eth
 
 ## API Documentation
 
-Complete Ethos API v2 documentation is available in `ethos-api-v2-documentation.md`.
+Complete Ethos API v2 documentation is available in
+`ethos-api-v2-documentation.md`.
 
 ## License
 
@@ -175,4 +194,4 @@ Complete Ethos API v2 documentation is available in `ethos-api-v2-documentation.
 
 ## Contact
 
-[Contact information to be added] 
+[Contact information to be added]

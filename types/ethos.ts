@@ -37,7 +37,7 @@ export interface EthosUser {
 }
 
 export interface EthosUserSearchResponse {
-  values: EthosUser[];  // Changed from 'users' to 'values'
+  values: EthosUser[]; // Changed from 'users' to 'values'
   total: number;
   limit: number;
   offset: number;
@@ -181,4 +181,4 @@ export interface EthosProfilesDirectoryResponse {
     offset: number;
     total: number;
   };
-} 
+}

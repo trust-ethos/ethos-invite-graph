@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { NetworkGraphData } from "../types/ethos.ts";
 
 interface NetworkVisualizationProps {
@@ -8,7 +8,10 @@ interface NetworkVisualizationProps {
   onDataUpdate?: (data: NetworkGraphData | null) => void;
 }
 
-export default function NetworkVisualization({ profileId, isFullScreen = false, selectedDepth, onDataUpdate }: NetworkVisualizationProps) {
+export default function NetworkVisualization(
+  { profileId, isFullScreen = false, selectedDepth, onDataUpdate }:
+    NetworkVisualizationProps,
+) {
   const [networkData, setNetworkData] = useState<NetworkGraphData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,23 +21,31 @@ export default function NetworkVisualization({ profileId, isFullScreen = false, 
     const fetchNetworkData = async () => {
       try {
         setLoading(true);
-        console.log('Fetching network data for profile:', profileId, 'depth:', selectedDepth);
-        
-        const response = await fetch(`/api/network/${profileId}?depth=${selectedDepth}`);
-        
+        console.log(
+          "Fetching network data for profile:",
+          profileId,
+          "depth:",
+          selectedDepth,
+        );
+
+        const response = await fetch(
+          `/api/network/${profileId}?depth=${selectedDepth}`,
+        );
+
         if (!response.ok) {
           const errorData = await response.json();
-          setError(errorData.error || 'Failed to fetch network data');
+          setError(errorData.error || "Failed to fetch network data");
           setLoading(false);
           return;
         }
 
         const networkData: NetworkGraphData = await response.json();
         setNetworkData(networkData);
-        console.log('Network data loaded:', networkData.totalNodes, 'nodes');
+        onDataUpdate?.(networkData);
+        console.log("Network data loaded:", networkData.totalNodes, "nodes");
       } catch (err) {
-        console.error('Network fetch error:', err);
-        setError('Failed to load network data');
+        console.error("Network fetch error:", err);
+        setError("Failed to load network data");
       } finally {
         setLoading(false);
       }
@@ -49,14 +60,14 @@ export default function NetworkVisualization({ profileId, isFullScreen = false, 
     const createVisualization = async () => {
       try {
         // Import D3 dynamically
-        const d3 = await import('d3');
-        
+        const d3 = await import("d3");
+
         // Clear previous visualization
         d3.select(svgRef.current).selectAll("*").remove();
 
-        const width = isFullScreen ? window.innerWidth : 800;
-        const height = isFullScreen ? window.innerHeight : 400;
-        
+        const width = isFullScreen ? globalThis.innerWidth : 800;
+        const height = isFullScreen ? globalThis.innerHeight : 400;
+
         const svg = d3.select(svgRef.current)
           .attr("width", width)
           .attr("height", height)
@@ -80,31 +91,36 @@ export default function NetworkVisualization({ profileId, isFullScreen = false, 
           .translate(width / 2, height / 2)
           .scale(initialScale)
           .translate(-width / 2, -height / 2);
-        
+
         svg.call(zoom.transform as any, initialTransform);
 
         // Prepare data for D3
-        const nodes = networkData.nodes.map(node => ({
+        const nodes = networkData.nodes.map((node) => ({
           id: node.id,
           profileId: node.profileId,
-          username: node.username || node.displayName || `Profile ${node.profileId}`,
+          username: node.username || node.displayName ||
+            `Profile ${node.profileId}`,
           level: node.level,
           score: node.score || 0,
-          avatarUrl: node.avatarUrl
+          avatarUrl: node.avatarUrl,
         }));
 
         // Create a set of valid node IDs to filter edges
-        const nodeIds = new Set(nodes.map(n => n.id));
-        
+        const nodeIds = new Set(nodes.map((n) => n.id));
+
         // Only include edges where both source and target nodes exist
         const links = networkData.edges
-          .filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target))
-          .map(edge => ({
+          .filter((edge) =>
+            nodeIds.has(edge.source) && nodeIds.has(edge.target)
+          )
+          .map((edge) => ({
             source: edge.source,
-            target: edge.target
+            target: edge.target,
           }));
 
-        console.log(`Filtered to ${links.length} valid links from ${networkData.edges.length} total edges`);
+        console.log(
+          `Filtered to ${links.length} valid links from ${networkData.edges.length} total edges`,
+        );
 
         // Create force simulation
         const simulation = d3.forceSimulation(nodes as any)
@@ -115,25 +131,25 @@ export default function NetworkVisualization({ profileId, isFullScreen = false, 
 
         // Color function based on credibility score (using exact retro theme colors)
         const getScoreColor = (score: number): string => {
-          if (score < 800) return '#FF1493'; // retro-pink (untrusted)
-          if (score < 1200) return '#FFD700'; // retro-yellow (questionable)
-          if (score < 1600) return '#666666'; // gray-700 (neutral)
-          if (score < 2000) return '#00FFFF'; // retro-cyan (reputable)
-          if (score < 2400) return '#39FF14'; // retro-lime (exemplary)
-          return '#8A2BE2'; // retro-purple (revered)
+          if (score < 800) return "#FF1493"; // retro-pink (untrusted)
+          if (score < 1200) return "#FFD700"; // retro-yellow (questionable)
+          if (score < 1600) return "#666666"; // gray-700 (neutral)
+          if (score < 2000) return "#00FFFF"; // retro-cyan (reputable)
+          if (score < 2400) return "#39FF14"; // retro-lime (exemplary)
+          return "#8A2BE2"; // retro-purple (revered)
         };
 
         // Size function based on credibility score with dramatic differences
         const getScoreSize = (score: number): number => {
-          console.log('Node score:', score); // Debug log
-          
+          console.log("Node score:", score); // Debug log
+
           // Much more extreme size differences
-          if (score < 800) return 5;    // Tiny for untrusted
-          if (score < 1200) return 8;   // Small for questionable  
-          if (score < 1600) return 15;  // Medium for neutral
-          if (score < 2000) return 25;  // Large for reputable
-          if (score < 2400) return 35;  // Very large for exemplary
-          return 45;                    // Massive for revered
+          if (score < 800) return 5; // Tiny for untrusted
+          if (score < 1200) return 8; // Small for questionable
+          if (score < 1600) return 15; // Medium for neutral
+          if (score < 2000) return 25; // Large for reputable
+          if (score < 2400) return 35; // Very large for exemplary
+          return 45; // Massive for revered
         };
 
         // Create links
@@ -151,21 +167,23 @@ export default function NetworkVisualization({ profileId, isFullScreen = false, 
           .enter().append("g")
           .attr("class", "node")
           .style("cursor", "pointer")
-          .call(d3.drag()
-            .on("start", (event: any, d: any) => {
-              if (!event.active) simulation.alphaTarget(0.3).restart();
-              d.fx = d.x;
-              d.fy = d.y;
-            })
-            .on("drag", (event: any, d: any) => {
-              d.fx = event.x;
-              d.fy = event.y;
-            })
-            .on("end", (event: any, d: any) => {
-              if (!event.active) simulation.alphaTarget(0);
-              d.fx = null;
-              d.fy = null;
-            }) as any);
+          .call(
+            d3.drag()
+              .on("start", (event: any, d: any) => {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+              })
+              .on("drag", (event: any, d: any) => {
+                d.fx = event.x;
+                d.fy = event.y;
+              })
+              .on("end", (event: any, d: any) => {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+              }) as any,
+          );
 
         // Add circles for nodes
         nodeGroup.append("circle")
@@ -199,20 +217,20 @@ export default function NetworkVisualization({ profileId, isFullScreen = false, 
           .attr("pointer-events", "none");
 
         // Add click handlers
-        nodeGroup.on("click", (event: any, d: any) => {
-          console.log('Clicked node:', d);
-          window.location.href = `/analysis/${d.profileId}`;
+        nodeGroup.on("click", (_event: any, d: any) => {
+          console.log("Clicked node:", d);
+          globalThis.location.href = `/analysis/${d.profileId}`;
         });
 
         // Add hover effects
         nodeGroup
-          .on("mouseover", function(event: any, d: any) {
+          .on("mouseover", function (_event: any, _d: any) {
             d3.select(this as any).select("circle")
               .transition().duration(200)
               .attr("r", (d: any) => getScoreSize(d.score || 0) * 1.3)
               .attr("stroke-width", 3);
           })
-          .on("mouseout", function(event: any, d: any) {
+          .on("mouseout", function (_event: any, _d: any) {
             d3.select(this as any).select("circle")
               .transition().duration(200)
               .attr("r", (d: any) => getScoreSize(d.score || 0))
@@ -231,11 +249,16 @@ export default function NetworkVisualization({ profileId, isFullScreen = false, 
             .attr("transform", (d: any) => `translate(${d.x},${d.y})`);
         });
 
-        console.log('D3 visualization created with:', nodes.length, 'nodes', links.length, 'links');
-
+        console.log(
+          "D3 visualization created with:",
+          nodes.length,
+          "nodes",
+          links.length,
+          "links",
+        );
       } catch (error) {
-        console.error('Error creating D3 visualization:', error);
-        setError('Failed to create visualization');
+        console.error("Error creating D3 visualization:", error);
+        setError("Failed to create visualization");
       }
     };
 
@@ -243,61 +266,85 @@ export default function NetworkVisualization({ profileId, isFullScreen = false, 
   }, [networkData]);
 
   if (loading) {
-    return isFullScreen ? (
-      <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-retro-teal/20 to-retro-purple/20">
-        <div class="text-center">
-          <div class="w-24 h-24 border-8 border-retro-teal border-t-retro-purple rounded-full animate-spin mx-auto mb-6"></div>
-          <div class="text-retro-purple font-retro font-black text-2xl">BUILDING NETWORK...</div>
+    return isFullScreen
+      ? (
+        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-retro-teal/20 to-retro-purple/20">
+          <div class="text-center">
+            <div class="w-24 h-24 border-8 border-retro-teal border-t-retro-purple rounded-full animate-spin mx-auto mb-6">
+            </div>
+            <div class="text-retro-purple font-retro font-black text-2xl">
+              BUILDING NETWORK...
+            </div>
+          </div>
         </div>
-      </div>
-    ) : (
-      <div class="bg-white/90 backdrop-blur-sm border-4 border-retro-purple rounded-3xl p-8 shadow-retro-lg">
-        <h3 class="text-2xl font-retro text-retro-purple mb-6 font-black">NETWORK VISUALIZATION</h3>
-        <div class="flex items-center justify-center py-16">
-          <div class="w-16 h-16 border-4 border-retro-teal border-t-retro-purple rounded-full animate-spin"></div>
-          <div class="ml-4 text-retro-purple font-retro font-black text-lg">BUILDING NETWORK...</div>
+      )
+      : (
+        <div class="bg-white/90 backdrop-blur-sm border-4 border-retro-purple rounded-3xl p-8 shadow-retro-lg">
+          <h3 class="text-2xl font-retro text-retro-purple mb-6 font-black">
+            NETWORK VISUALIZATION
+          </h3>
+          <div class="flex items-center justify-center py-16">
+            <div class="w-16 h-16 border-4 border-retro-teal border-t-retro-purple rounded-full animate-spin">
+            </div>
+            <div class="ml-4 text-retro-purple font-retro font-black text-lg">
+              BUILDING NETWORK...
+            </div>
+          </div>
         </div>
-      </div>
-    );
+      );
   }
 
   if (error) {
-    return isFullScreen ? (
-      <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-retro-magenta/20 to-retro-purple/20">
-        <div class="text-center">
-          <div class="text-6xl mb-6">😅</div>
-          <div class="text-retro-purple font-retro font-black text-2xl mb-4">OOPS!</div>
-          <div class="text-gray-700 font-bold text-lg">{error}</div>
+    return isFullScreen
+      ? (
+        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-retro-magenta/20 to-retro-purple/20">
+          <div class="text-center">
+            <div class="text-6xl mb-6">😅</div>
+            <div class="text-retro-purple font-retro font-black text-2xl mb-4">
+              OOPS!
+            </div>
+            <div class="text-gray-700 font-bold text-lg">{error}</div>
+          </div>
         </div>
-      </div>
-    ) : (
-      <div class="bg-white/90 backdrop-blur-sm border-4 border-retro-magenta rounded-3xl p-8 shadow-retro-lg">
-        <h3 class="text-2xl font-retro text-retro-purple mb-6 font-black">NETWORK VISUALIZATION</h3>
-        <div class="text-center py-8">
-          <div class="text-4xl mb-4">😅</div>
-          <div class="text-retro-purple font-retro font-black text-lg mb-2">OOPS!</div>
-          <div class="text-gray-700 font-bold">{error}</div>
+      )
+      : (
+        <div class="bg-white/90 backdrop-blur-sm border-4 border-retro-magenta rounded-3xl p-8 shadow-retro-lg">
+          <h3 class="text-2xl font-retro text-retro-purple mb-6 font-black">
+            NETWORK VISUALIZATION
+          </h3>
+          <div class="text-center py-8">
+            <div class="text-4xl mb-4">😅</div>
+            <div class="text-retro-purple font-retro font-black text-lg mb-2">
+              OOPS!
+            </div>
+            <div class="text-gray-700 font-bold">{error}</div>
+          </div>
         </div>
-      </div>
-    );
+      );
   }
 
   if (isFullScreen) {
     return (
       <>
         {/* Full-screen SVG */}
-        <svg 
+        <svg
           ref={svgRef}
           class="w-full h-full"
-          style={{ background: 'linear-gradient(135deg, #F5F5DC 0%, #E6E6FA 50%, #F0F8FF 100%)' }}
+          style={{
+            background:
+              "linear-gradient(135deg, #F5F5DC 0%, #E6E6FA 50%, #F0F8FF 100%)",
+          }}
         />
-        
-
 
         {/* Floating Legend */}
         <div class="fixed bottom-6 left-6 z-[100]">
-          <div class="bg-white border-4 border-retro-teal rounded-2xl p-4 shadow-retro-lg" style="pointer-events: auto; position: relative; z-index: 1000;">
-            <div class="text-sm font-bold text-gray-700 mb-3 font-retro">CREDIBILITY LEGEND:</div>
+          <div
+            class="bg-white border-4 border-retro-teal rounded-2xl p-4 shadow-retro-lg"
+            style="pointer-events: auto; position: relative; z-index: 1000;"
+          >
+            <div class="text-sm font-bold text-gray-700 mb-3 font-retro">
+              CREDIBILITY LEGEND:
+            </div>
             <div class="space-y-2">
               <div class="flex items-center space-x-2">
                 <div class="w-4 h-4 rounded-full bg-retro-pink"></div>
@@ -333,67 +380,59 @@ export default function NetworkVisualization({ profileId, isFullScreen = false, 
   return (
     <div class="bg-white/90 backdrop-blur-sm border-4 border-retro-purple rounded-3xl p-8 shadow-retro-lg">
       <div class="flex items-center justify-between mb-6">
-        <h3 class="text-2xl font-retro text-retro-purple font-black">NETWORK VISUALIZATION</h3>
-        <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-2">
-            <label class="text-sm font-bold text-gray-700">Depth:</label>
-            <select 
-              value={selectedDepth} 
-              onChange={(e) => setSelectedDepth(Number((e.target as HTMLSelectElement).value))}
-              class="px-3 py-1 border-2 border-retro-teal rounded-lg font-bold bg-white"
-            >
-              <option value={1}>1</option>
-              <option value={2}>2</option>
-              <option value={3}>3</option>
-              <option value={4}>4</option>
-            </select>
-          </div>
-          <div class="text-sm font-bold text-gray-700">
-            {networkData?.totalNodes} nodes, {networkData?.edges.length} connections
-          </div>
+        <h3 class="text-2xl font-retro text-retro-purple font-black">
+          NETWORK VISUALIZATION
+        </h3>
+        <div class="text-sm font-bold text-gray-700">
+          {networkData?.totalNodes} nodes, {networkData?.edges.length}{" "}
+          connections
         </div>
       </div>
 
       {/* Legend */}
       <div class="mb-4 p-4 bg-retro-teal/10 border-2 border-retro-teal rounded-xl">
-        <div class="text-sm font-bold text-gray-700 mb-2">Credibility Legend:</div>
+        <div class="text-sm font-bold text-gray-700 mb-2">
+          Credibility Legend:
+        </div>
         <div class="flex flex-wrap gap-4">
           <div class="flex items-center space-x-2">
             <div class="w-4 h-4 rounded-full bg-retro-pink"></div>
             <span class="text-xs font-bold">&lt;800 Untrusted</span>
           </div>
-                      <div class="flex items-center space-x-2">
-              <div class="w-4 h-4 rounded-full bg-retro-yellow"></div>
-              <span class="text-xs font-bold">800-1199 Questionable</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <div class="w-4 h-4 rounded-full bg-gray-700"></div>
-              <span class="text-xs font-bold">1200-1599 Neutral</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <div class="w-4 h-4 rounded-full bg-retro-cyan"></div>
-              <span class="text-xs font-bold">1600-1999 Reputable</span>
-            </div>
-            <div class="flex items-center space-x-2">
-              <div class="w-4 h-4 rounded-full bg-retro-lime"></div>
-              <span class="text-xs font-bold">2000-2399 Exemplary</span>
-            </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 rounded-full bg-retro-yellow"></div>
+            <span class="text-xs font-bold">800-1199 Questionable</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 rounded-full bg-gray-700"></div>
+            <span class="text-xs font-bold">1200-1599 Neutral</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 rounded-full bg-retro-cyan"></div>
+            <span class="text-xs font-bold">1600-1999 Reputable</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 rounded-full bg-retro-lime"></div>
+            <span class="text-xs font-bold">2000-2399 Exemplary</span>
+          </div>
           <div class="flex items-center space-x-2">
             <div class="w-4 h-4 rounded-full bg-retro-purple"></div>
             <span class="text-xs font-bold">2400+ Revered</span>
           </div>
-          <div class="text-xs font-bold text-gray-600">Size = Score • Drag nodes • Click to explore • Scroll to zoom</div>
+          <div class="text-xs font-bold text-gray-600">
+            Size = Score • Drag nodes • Click to explore • Scroll to zoom
+          </div>
         </div>
       </div>
 
       {/* D3 Visualization Container */}
       <div class="w-full border-2 border-retro-cyan rounded-xl bg-cream overflow-hidden">
-        <svg 
+        <svg
           ref={svgRef}
           class="w-full h-96"
-          style={{ minHeight: '400px', background: '#F5F5DC' }}
+          style={{ minHeight: "400px", background: "#F5F5DC" }}
         />
       </div>
     </div>
   );
-} 
+}
