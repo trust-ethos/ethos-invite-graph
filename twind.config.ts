@@ -12,7 +12,7 @@ export default {
           magenta: '#FF1493',   // Hot magenta
           pink: '#FF69B4',      // Hot pink
           blue: '#4169E1',      // Royal blue
-          lime: '#32CD32',      // Lime green
+          lime: '#39FF14',      // Electric lime green
           yellow: '#FFD700',    // Gold
           orange: '#FF4500',    // Orange red
         },

@@ -118,7 +118,7 @@ export default function NetworkVisualization({ profileId, isFullScreen = false }
           if (score < 1200) return '#FFD700'; // retro-yellow (questionable)
           if (score < 1600) return '#666666'; // gray-700 (neutral)
           if (score < 2000) return '#00FFFF'; // retro-cyan (reputable)
-          if (score < 2400) return '#32CD32'; // retro-lime (exemplary)
+          if (score < 2400) return '#39FF14'; // retro-lime (exemplary)
           return '#8A2BE2'; // retro-purple (revered)
         };
 
@@ -172,6 +172,20 @@ export default function NetworkVisualization({ profileId, isFullScreen = false }
           .attr("fill", (d: any) => getScoreColor(d.score || 0))
           .attr("stroke", "#fff")
           .attr("stroke-width", 2);
+
+        // Add score text inside circles
+        nodeGroup.append("text")
+          .text((d: any) => d.score || "0")
+          .attr("text-anchor", "middle")
+          .attr("dominant-baseline", "central")
+          .attr("fill", "#fff")
+          .attr("font-size", (d: any) => {
+            const size = getScoreSize(d.score || 0);
+            return Math.max(8, Math.min(14, size * 0.35)) + "px";
+          })
+          .attr("font-weight", "bold")
+          .attr("pointer-events", "none")
+          .style("text-shadow", "1px 1px 2px rgba(0,0,0,0.8)");
 
         // Add labels
         nodeGroup.append("text")
@@ -278,10 +292,11 @@ export default function NetworkVisualization({ profileId, isFullScreen = false }
         />
         
         {/* Back to Search Button - Top Left */}
-        <div class="fixed top-6 left-6 z-60">
+        <div class="fixed top-6 left-6 z-[100]">
           <a
             href="/"
-            class="inline-flex items-center px-4 py-2 bg-retro-purple border-4 border-retro-cyan rounded-2xl text-white font-retro font-black hover:bg-retro-cyan hover:border-retro-purple transition-all duration-200 shadow-retro-lg hover:scale-105"
+            class="inline-flex items-center px-4 py-2 bg-retro-purple border-4 border-retro-cyan rounded-2xl text-white font-retro font-black hover:bg-retro-cyan hover:border-retro-purple transition-all duration-200 shadow-retro-lg hover:scale-105 cursor-pointer"
+            style="pointer-events: auto; position: relative; z-index: 1000;"
           >
             <span class="mr-2">←</span>
             BACK TO SEARCH
@@ -289,8 +304,8 @@ export default function NetworkVisualization({ profileId, isFullScreen = false }
         </div>
 
         {/* Depth Controls - Top Right */}
-        <div class="fixed top-6 right-6 z-60">
-          <div class="bg-white border-4 border-retro-purple rounded-2xl p-4 shadow-retro-lg">
+        <div class="fixed top-6 right-6 z-[100]">
+          <div class="bg-white border-4 border-retro-purple rounded-2xl p-4 shadow-retro-lg" style="pointer-events: auto; position: relative; z-index: 1000;">
             <div class="flex items-center space-x-4">
               <div class="flex items-center space-x-2">
                 <label class="text-sm font-bold text-gray-700">Depth:</label>
@@ -313,8 +328,8 @@ export default function NetworkVisualization({ profileId, isFullScreen = false }
         </div>
 
         {/* Floating Legend */}
-        <div class="fixed bottom-6 left-6 z-40">
-          <div class="bg-white border-4 border-retro-teal rounded-2xl p-4 shadow-retro-lg">
+        <div class="fixed bottom-6 left-6 z-[100]">
+          <div class="bg-white border-4 border-retro-teal rounded-2xl p-4 shadow-retro-lg" style="pointer-events: auto; position: relative; z-index: 1000;">
             <div class="text-sm font-bold text-gray-700 mb-3 font-retro">CREDIBILITY LEGEND:</div>
             <div class="space-y-2">
               <div class="flex items-center space-x-2">
