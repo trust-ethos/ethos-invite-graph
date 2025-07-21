@@ -1,8 +1,9 @@
 #!/usr/bin/env -S deno run -A --watch=static/,routes/
 
-import dev from "$fresh/dev.ts";
+import { start } from "$fresh/server.ts";
 import config from "./fresh.config.ts";
+import manifest from "./fresh.gen.ts";
 
 import "$std/dotenv/load.ts";
 
-await dev(import.meta.url, "./main.ts", config); 
+await start(manifest, config); 

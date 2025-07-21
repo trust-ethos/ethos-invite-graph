@@ -4,13 +4,14 @@ import { NetworkGraphData } from "../types/ethos.ts";
 interface NetworkVisualizationProps {
   profileId: number;
   isFullScreen?: boolean;
+  selectedDepth: number;
+  onDataUpdate?: (data: NetworkGraphData | null) => void;
 }
 
-export default function NetworkVisualization({ profileId, isFullScreen = false }: NetworkVisualizationProps) {
+export default function NetworkVisualization({ profileId, isFullScreen = false, selectedDepth, onDataUpdate }: NetworkVisualizationProps) {
   const [networkData, setNetworkData] = useState<NetworkGraphData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedDepth, setSelectedDepth] = useState(3);
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
@@ -291,41 +292,7 @@ export default function NetworkVisualization({ profileId, isFullScreen = false }
           style={{ background: 'linear-gradient(135deg, #F5F5DC 0%, #E6E6FA 50%, #F0F8FF 100%)' }}
         />
         
-        {/* Back to Search Button - Top Left */}
-        <div class="fixed top-6 left-6 z-[100]">
-          <a
-            href="/"
-            class="inline-flex items-center px-4 py-2 bg-retro-purple border-4 border-retro-cyan rounded-2xl text-white font-retro font-black hover:bg-retro-cyan hover:border-retro-purple transition-all duration-200 shadow-retro-lg hover:scale-105 cursor-pointer"
-            style="pointer-events: auto; position: relative; z-index: 1000;"
-          >
-            <span class="mr-2">←</span>
-            BACK TO SEARCH
-          </a>
-        </div>
 
-        {/* Depth Controls - Top Right */}
-        <div class="fixed top-6 right-6 z-[100]">
-          <div class="bg-white border-4 border-retro-purple rounded-2xl p-4 shadow-retro-lg" style="pointer-events: auto; position: relative; z-index: 1000;">
-            <div class="flex items-center space-x-4">
-              <div class="flex items-center space-x-2">
-                <label class="text-sm font-bold text-gray-700">Depth:</label>
-                <select 
-                  value={selectedDepth} 
-                  onChange={(e) => setSelectedDepth(Number((e.target as HTMLSelectElement).value))}
-                  class="px-3 py-1 border-2 border-retro-teal rounded-lg font-bold bg-white"
-                >
-                  <option value={1}>1</option>
-                  <option value={2}>2</option>
-                  <option value={3}>3</option>
-                  <option value={4}>4</option>
-                </select>
-              </div>
-              <div class="text-sm font-bold text-gray-700">
-                {networkData?.totalNodes} nodes, {networkData?.edges.length} connections
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Floating Legend */}
         <div class="fixed bottom-6 left-6 z-[100]">
