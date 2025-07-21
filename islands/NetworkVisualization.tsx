@@ -201,7 +201,7 @@ export default function NetworkVisualization(
 
         // Add profile images using foreignObject for better image handling
         const imageSize = (d: any) => getScoreSize(d.score || 0) * 2; // diameter
-        
+
         nodeGroup.append("foreignObject")
           .attr("width", (d: any) => imageSize(d))
           .attr("height", (d: any) => imageSize(d))
@@ -223,13 +223,21 @@ export default function NetworkVisualization(
                         crossorigin="anonymous"
                         loading="lazy"
                         onerror="this.style.display='none'; this.nextSibling.style.display='flex';" />
-                      <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: ${Math.max(12, imageSize(d) * 0.2)}px; font-weight: bold; color: #666; background: ${getScoreColor(d.score || 0)}; border-radius: 50%;">
-                        ${d.score || '0'}
+                      <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: ${
+                Math.max(12, imageSize(d) * 0.2)
+              }px; font-weight: bold; color: #666; background: ${
+                getScoreColor(d.score || 0)
+              }; border-radius: 50%;">
+                        ${d.score || "0"}
                       </div>`;
             } else {
               // Fallback for no avatar - show score with colored background
-              return `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: ${Math.max(12, imageSize(d) * 0.25)}px; font-weight: bold; color: #fff; background: ${getScoreColor(d.score || 0)}; border-radius: 50%;">
-                        ${d.score || '0'}
+              return `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: ${
+                Math.max(12, imageSize(d) * 0.25)
+              }px; font-weight: bold; color: #fff; background: ${
+                getScoreColor(d.score || 0)
+              }; border-radius: 50%;">
+                        ${d.score || "0"}
                       </div>`;
             }
           });

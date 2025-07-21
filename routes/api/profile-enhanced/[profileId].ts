@@ -1,5 +1,6 @@
 import { FreshContext } from "$fresh/server.ts";
 import { EthosProfilesResponse } from "../../../types/ethos.ts";
+import { getCacheKey, getOrFetch } from "../../../utils/cache.ts";
 
 const ETHOS_API_BASE_V1 = "https://api.ethos.network/api/v1";
 const ETHOS_API_BASE_V2 = "https://api.ethos.network/api/v2";
@@ -22,27 +23,33 @@ export const handler = async (
       `🔍 Fetching enhanced profile ${profileId} from both v1 and v2 APIs`,
     );
 
-    // Get basic profile info from v1 (for invitedBy relationship)
-    const profileResponse = await fetch(`${ETHOS_API_BASE_V1}/profiles`, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "User-Agent": "EthosInviteGraph/1.0",
-        "X-Ethos-Client": "ethos-invite-graph@1.0.0",
+    // Get basic profile info from v1 (for invitedBy relationship) with caching
+    const profileData: EthosProfilesResponse = await getOrFetch(
+      getCacheKey("profile-v1", profileId),
+      async () => {
+        const profileResponse = await fetch(`${ETHOS_API_BASE_V1}/profiles`, {
+          method: "POST",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "EthosInviteGraph/1.0",
+            "X-Ethos-Client": "ethos-invite-graph@1.0.0",
+          },
+          body: JSON.stringify({
+            ids: [Number(profileId)],
+            limit: 1,
+            offset: 0,
+          }),
+        });
+
+        if (!profileResponse.ok) {
+          throw new Error(`Profiles API error: ${profileResponse.status}`);
+        }
+
+        return await profileResponse.json();
       },
-      body: JSON.stringify({
-        ids: [Number(profileId)],
-        limit: 1,
-        offset: 0,
-      }),
-    });
-
-    if (!profileResponse.ok) {
-      throw new Error(`Profiles API error: ${profileResponse.status}`);
-    }
-
-    const profileData: EthosProfilesResponse = await profileResponse.json();
+      "profile",
+    );
 
     if (!profileData.ok || !profileData.data.values.length) {
       return new Response(
@@ -57,28 +64,43 @@ export const handler = async (
       JSON.stringify(basicProfile, null, 2),
     );
 
-    // Get user data from v2 API using the profile-id endpoint
+    // Get user data from v2 API using the profile-id endpoint with caching
     let userData = null;
-    const userResponse = await fetch(
-      `${ETHOS_API_BASE_V2}/users/by/profile-id`,
-      {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "User-Agent": "EthosInviteGraph/1.0",
-          "X-Ethos-Client": "ethos-invite-graph@1.0.0",
-        },
-        body: JSON.stringify({
-          profileIds: [Number(profileId)],
-        }),
-      },
-    );
+    try {
+      userData = await getOrFetch(
+        getCacheKey("user-v2", profileId),
+        async () => {
+          const userResponse = await fetch(
+            `${ETHOS_API_BASE_V2}/users/by/profile-id`,
+            {
+              method: "POST",
+              headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "User-Agent": "EthosInviteGraph/1.0",
+                "X-Ethos-Client": "ethos-invite-graph@1.0.0",
+              },
+              body: JSON.stringify({
+                profileIds: [Number(profileId)],
+              }),
+            },
+          );
 
-    if (userResponse.ok) {
-      const usersData = await userResponse.json();
-      // The API returns an array, get the first user
-      userData = usersData.length > 0 ? usersData[0] : null;
+          if (userResponse.ok) {
+            const usersData = await userResponse.json();
+            // The API returns an array, get the first user
+            return usersData.length > 0 ? usersData[0] : null;
+          } else {
+            const errorText = await userResponse.text();
+            console.log(
+              `⚠️ User data not found for profile ${profileId} in v2 API. Status: ${userResponse.status}, Response: ${errorText}`,
+            );
+            return null;
+          }
+        },
+        "profile",
+      );
+
       if (userData) {
         console.log(
           `✅ Found user data for profile ${profileId}:`,
@@ -87,43 +109,52 @@ export const handler = async (
       } else {
         console.log(`⚠️ No user found in response for profile ${profileId}`);
       }
-    } else {
-      const errorText = await userResponse.text();
+    } catch (error) {
       console.log(
-        `⚠️ User data not found for profile ${profileId} in v2 API. Status: ${userResponse.status}, Response: ${errorText}`,
+        `❌ Error fetching user data for profile ${profileId}:`,
+        error,
       );
+      userData = null;
     }
 
-    // Get inviter information if available
+    // Get inviter information if available with caching
     let inviterData = null;
     if (basicProfile.invitedBy) {
       try {
-        const inviterResponse = await fetch(
-          `${ETHOS_API_BASE_V2}/users/by/profile-id`,
-          {
-            method: "POST",
-            headers: {
-              "Accept": "application/json",
-              "Content-Type": "application/json",
-              "User-Agent": "EthosInviteGraph/1.0",
-              "X-Ethos-Client": "ethos-invite-graph@1.0.0",
-            },
-            body: JSON.stringify({
-              profileIds: [basicProfile.invitedBy],
-            }),
+        inviterData = await getOrFetch(
+          getCacheKey("user-v2", basicProfile.invitedBy),
+          async () => {
+            const inviterResponse = await fetch(
+              `${ETHOS_API_BASE_V2}/users/by/profile-id`,
+              {
+                method: "POST",
+                headers: {
+                  "Accept": "application/json",
+                  "Content-Type": "application/json",
+                  "User-Agent": "EthosInviteGraph/1.0",
+                  "X-Ethos-Client": "ethos-invite-graph@1.0.0",
+                },
+                body: JSON.stringify({
+                  profileIds: [basicProfile.invitedBy],
+                }),
+              },
+            );
+
+            if (inviterResponse.ok) {
+              const invitersData = await inviterResponse.json();
+              return invitersData.length > 0 ? invitersData[0] : null;
+            }
+            return null;
           },
+          "profile",
         );
 
-        if (inviterResponse.ok) {
-          const invitersData = await inviterResponse.json();
-          inviterData = invitersData.length > 0 ? invitersData[0] : null;
-          if (inviterData) {
-            console.log(
-              `✅ Found inviter data: ${
-                inviterData.username || inviterData.displayName
-              }`,
-            );
-          }
+        if (inviterData) {
+          console.log(
+            `✅ Found inviter data: ${
+              inviterData.username || inviterData.displayName
+            }`,
+          );
         }
       } catch (err) {
         console.log(`⚠️ Could not fetch inviter data: ${err}`);

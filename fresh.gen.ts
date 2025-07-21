@@ -3,6 +3,7 @@
 // This file is automatically updated during development when running `dev.ts`.
 
 import * as $analysis_userkey_ from "./routes/analysis/[userkey].tsx";
+import * as $api_cache_stats from "./routes/api/cache-stats.ts";
 import * as $api_invitations_profileId_ from "./routes/api/invitations/[profileId].ts";
 import * as $api_network_profileId_ from "./routes/api/network/[profileId].ts";
 import * as $api_profile_enhanced_profileId_ from "./routes/api/profile-enhanced/[profileId].ts";
@@ -17,6 +18,7 @@ import { type Manifest } from "$fresh/server.ts";
 const manifest = {
   routes: {
     "./routes/analysis/[userkey].tsx": $analysis_userkey_,
+    "./routes/api/cache-stats.ts": $api_cache_stats,
     "./routes/api/invitations/[profileId].ts": $api_invitations_profileId_,
     "./routes/api/network/[profileId].ts": $api_network_profileId_,
     "./routes/api/profile-enhanced/[profileId].ts":

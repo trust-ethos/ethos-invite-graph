@@ -1,4 +1,5 @@
 import { FreshContext } from "$fresh/server.ts";
+import { getCacheKey, getOrFetch } from "../../../utils/cache.ts";
 
 const ETHOS_API_BASE_V2 = "https://api.ethos.network/api/v2";
 
@@ -29,30 +30,31 @@ export const handler = async (
 
     console.log(`📡 Fetching activities: ${activitiesUrl.toString()}`);
 
-    const response = await fetch(activitiesUrl.toString(), {
-      headers: {
-        "Accept": "application/json",
-        "User-Agent": "EthosInviteGraph/1.0",
-        "X-Ethos-Client": "ethos-invite-graph@1.0.0",
+    const activitiesData = await getOrFetch(
+      getCacheKey("invitations", profileId),
+      async () => {
+        const response = await fetch(activitiesUrl.toString(), {
+          headers: {
+            "Accept": "application/json",
+            "User-Agent": "EthosInviteGraph/1.0",
+            "X-Ethos-Client": "ethos-invite-graph@1.0.0",
+          },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(
+            `❌ Activities API Error: ${response.status} - ${errorText}`,
+          );
+          throw new Error(
+            `Activities API error: ${response.status} - ${errorText}`,
+          );
+        }
+
+        return await response.json();
       },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `❌ Activities API Error: ${response.status} - ${errorText}`,
-      );
-
-      return new Response(
-        JSON.stringify({
-          error: `Activities API error: ${response.status}`,
-          details: errorText,
-        }),
-        { status: 500, headers: { "Content-Type": "application/json" } },
-      );
-    }
-
-    const activitiesData = await response.json();
+      "invitations",
+    );
     console.log(`✅ Found ${activitiesData.length} invitation activities`);
 
     // Extract invited user information from activities

@@ -1,4 +1,5 @@
 import { FreshContext } from "$fresh/server.ts";
+import { getCacheKey, getOrFetch } from "../../../utils/cache.ts";
 
 const ETHOS_API_BASE_V2 = "https://api.ethos.network/api/v2";
 
@@ -64,27 +65,34 @@ export const handler = async (
         `📊 Processing profile ${currentProfileId} at level ${currentLevel}`,
       );
 
-      // Get user data for current profile
+      // Get user data for current profile with caching
+      let userData = null;
       try {
-        const userResponse = await fetch(
-          `${ETHOS_API_BASE_V2}/users/by/profile-id`,
-          {
-            method: "POST",
-            headers: {
-              "Accept": "application/json",
-              "Content-Type": "application/json",
-              "User-Agent": "EthosInviteGraph/1.0",
-              "X-Ethos-Client": "ethos-invite-graph@1.0.0",
-            },
-            body: JSON.stringify({ profileIds: [currentProfileId] }),
-          },
-        );
+        userData = await getOrFetch(
+          getCacheKey("user-v2", currentProfileId),
+          async () => {
+            const userResponse = await fetch(
+              `${ETHOS_API_BASE_V2}/users/by/profile-id`,
+              {
+                method: "POST",
+                headers: {
+                  "Accept": "application/json",
+                  "Content-Type": "application/json",
+                  "User-Agent": "EthosInviteGraph/1.0",
+                  "X-Ethos-Client": "ethos-invite-graph@1.0.0",
+                },
+                body: JSON.stringify({ profileIds: [currentProfileId] }),
+              },
+            );
 
-        let userData = null;
-        if (userResponse.ok) {
-          const usersData = await userResponse.json();
-          userData = usersData.length > 0 ? usersData[0] : null;
-        }
+            if (userResponse.ok) {
+              const usersData = await userResponse.json();
+              return usersData.length > 0 ? usersData[0] : null;
+            }
+            return null;
+          },
+          "profile",
+        );
 
         // Add current profile as a node
         nodes.set(currentProfileId, {
@@ -97,32 +105,42 @@ export const handler = async (
           level: currentLevel,
         });
 
-        // Get people this profile invited
-        const activitiesUrl = new URL(
-          `${ETHOS_API_BASE_V2}/activities/userkey`,
-        );
-        activitiesUrl.searchParams.set(
-          "userkey",
-          `profileId:${currentProfileId}`,
-        );
-        activitiesUrl.searchParams.set("direction", "author");
-        activitiesUrl.searchParams.set("activityType", "INVITATION");
-        activitiesUrl.searchParams.set("limit", "100");
+        // Get people this profile invited with caching
+        const activitiesData = await getOrFetch(
+          getCacheKey("invitations", currentProfileId),
+          async () => {
+            const activitiesUrl = new URL(
+              `${ETHOS_API_BASE_V2}/activities/userkey`,
+            );
+            activitiesUrl.searchParams.set(
+              "userkey",
+              `profileId:${currentProfileId}`,
+            );
+            activitiesUrl.searchParams.set("direction", "author");
+            activitiesUrl.searchParams.set("activityType", "INVITATION");
+            activitiesUrl.searchParams.set("limit", "100");
 
-        const activitiesResponse = await fetch(activitiesUrl.toString(), {
-          headers: {
-            "Accept": "application/json",
-            "User-Agent": "EthosInviteGraph/1.0",
-            "X-Ethos-Client": "ethos-invite-graph@1.0.0",
+            const activitiesResponse = await fetch(activitiesUrl.toString(), {
+              headers: {
+                "Accept": "application/json",
+                "User-Agent": "EthosInviteGraph/1.0",
+                "X-Ethos-Client": "ethos-invite-graph@1.0.0",
+              },
+            });
+
+            if (activitiesResponse.ok) {
+              return await activitiesResponse.json();
+            }
+            return [];
           },
-        });
+          "invitations",
+        );
 
-        if (activitiesResponse.ok) {
-          const activitiesData = await activitiesResponse.json();
-          console.log(
-            `✅ Profile ${currentProfileId} invited ${activitiesData.length} people`,
-          );
+        console.log(
+          `✅ Profile ${currentProfileId} invited ${activitiesData.length} people`,
+        );
 
+        if (activitiesData.length > 0) {
           // Process each invited user
           for (const activity of activitiesData) {
             if (activity.subject?.profileId) {
