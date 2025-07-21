@@ -10,7 +10,7 @@ export default {
           cyan: '#00FFFF',      // Bright cyan
           purple: '#8A2BE2',    // Deep purple
           magenta: '#FF1493',   // Hot magenta
-          pink: '#FF69B4',      // Hot pink
+          pink: '#FF1493',      // Hot magenta (matches View Profile button)
           blue: '#4169E1',      // Royal blue
           lime: '#39FF14',      // Electric lime green
           yellow: '#FFD700',    // Gold

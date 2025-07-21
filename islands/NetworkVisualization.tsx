@@ -114,7 +114,7 @@ export default function NetworkVisualization({ profileId, isFullScreen = false }
 
         // Color function based on credibility score (using exact retro theme colors)
         const getScoreColor = (score: number): string => {
-          if (score < 800) return '#FF69B4'; // retro-pink (untrusted)
+          if (score < 800) return '#FF1493'; // retro-pink (untrusted)
           if (score < 1200) return '#FFD700'; // retro-yellow (questionable)
           if (score < 1600) return '#666666'; // gray-700 (neutral)
           if (score < 2000) return '#00FFFF'; // retro-cyan (reputable)
