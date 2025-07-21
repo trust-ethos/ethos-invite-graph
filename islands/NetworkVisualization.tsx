@@ -185,26 +185,54 @@ export default function NetworkVisualization(
               }) as any,
           );
 
-        // Add circles for nodes
+        // Add colored ring (outer circle) for score indication
+        nodeGroup.append("circle")
+          .attr("r", (d: any) => getScoreSize(d.score || 0) + 3) // Ring is slightly larger
+          .attr("fill", "none")
+          .attr("stroke", (d: any) => getScoreColor(d.score || 0))
+          .attr("stroke-width", 4);
+
+        // Add white background circle for images
         nodeGroup.append("circle")
           .attr("r", (d: any) => getScoreSize(d.score || 0))
-          .attr("fill", (d: any) => getScoreColor(d.score || 0))
-          .attr("stroke", "#fff")
-          .attr("stroke-width", 2);
-
-        // Add score text inside circles
-        nodeGroup.append("text")
-          .text((d: any) => d.score || "0")
-          .attr("text-anchor", "middle")
-          .attr("dominant-baseline", "central")
           .attr("fill", "#fff")
-          .attr("font-size", (d: any) => {
-            const size = getScoreSize(d.score || 0);
-            return Math.max(8, Math.min(14, size * 0.35)) + "px";
-          })
-          .attr("font-weight", "bold")
-          .attr("pointer-events", "none")
-          .style("text-shadow", "1px 1px 2px rgba(0,0,0,0.8)");
+          .attr("stroke", "#ddd")
+          .attr("stroke-width", 1);
+
+        // Add profile images using foreignObject for better image handling
+        const imageSize = (d: any) => getScoreSize(d.score || 0) * 2; // diameter
+        
+        nodeGroup.append("foreignObject")
+          .attr("width", (d: any) => imageSize(d))
+          .attr("height", (d: any) => imageSize(d))
+          .attr("x", (d: any) => -imageSize(d) / 2)
+          .attr("y", (d: any) => -imageSize(d) / 2)
+          .append("xhtml:div")
+          .style("width", "100%")
+          .style("height", "100%")
+          .style("border-radius", "50%")
+          .style("overflow", "hidden")
+          .style("display", "flex")
+          .style("align-items", "center")
+          .style("justify-content", "center")
+          .style("background", "#f0f0f0")
+          .html((d: any) => {
+            if (d.avatarUrl) {
+              return `<img src="${d.avatarUrl}" 
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" 
+                        crossorigin="anonymous"
+                        loading="lazy"
+                        onerror="this.style.display='none'; this.nextSibling.style.display='flex';" />
+                      <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: ${Math.max(12, imageSize(d) * 0.2)}px; font-weight: bold; color: #666; background: ${getScoreColor(d.score || 0)}; border-radius: 50%;">
+                        ${d.score || '0'}
+                      </div>`;
+            } else {
+              // Fallback for no avatar - show score with colored background
+              return `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: ${Math.max(12, imageSize(d) * 0.25)}px; font-weight: bold; color: #fff; background: ${getScoreColor(d.score || 0)}; border-radius: 50%;">
+                        ${d.score || '0'}
+                      </div>`;
+            }
+          });
 
         // Add labels
         nodeGroup.append("text")
