@@ -105,33 +105,49 @@ export const handler = async (
           level: currentLevel,
         });
 
-        // Get people this profile invited with caching
+        // Get people this profile invited with caching and pagination
         const activitiesData = await getOrFetch(
           getCacheKey("invitations", currentProfileId),
           async () => {
-            const activitiesUrl = new URL(
-              `${ETHOS_API_BASE_V2}/activities/userkey`,
-            );
-            activitiesUrl.searchParams.set(
-              "userkey",
-              `profileId:${currentProfileId}`,
-            );
-            activitiesUrl.searchParams.set("direction", "author");
-            activitiesUrl.searchParams.set("activityType", "INVITATION");
-            activitiesUrl.searchParams.set("limit", "100");
+            const allActivities: any[] = [];
+            let offset = 0;
+            const limit = 100;
+            let hasMore = true;
 
-            const activitiesResponse = await fetch(activitiesUrl.toString(), {
-              headers: {
-                "Accept": "application/json",
-                "User-Agent": "EthosInviteGraph/1.0",
-                "X-Ethos-Client": "ethos-invite-graph@1.0.0",
-              },
-            });
+            while (hasMore) {
+              const activitiesUrl = new URL(
+                `${ETHOS_API_BASE_V2}/activities/userkey`,
+              );
+              activitiesUrl.searchParams.set(
+                "userkey",
+                `profileId:${currentProfileId}`,
+              );
+              activitiesUrl.searchParams.set("direction", "author");
+              activitiesUrl.searchParams.set("activityType", "INVITATION");
+              activitiesUrl.searchParams.set("limit", limit.toString());
+              activitiesUrl.searchParams.set("offset", offset.toString());
 
-            if (activitiesResponse.ok) {
-              return await activitiesResponse.json();
+              const activitiesResponse = await fetch(activitiesUrl.toString(), {
+                headers: {
+                  "Accept": "application/json",
+                  "User-Agent": "EthosInviteGraph/1.0",
+                  "X-Ethos-Client": "ethos-invite-graph@1.0.0",
+                },
+              });
+
+              if (activitiesResponse.ok) {
+                const pageData = await activitiesResponse.json();
+                allActivities.push(...pageData);
+
+                // Check if we got fewer results than requested (end of data)
+                hasMore = pageData.length === limit;
+                offset += limit;
+              } else {
+                hasMore = false;
+              }
             }
-            return [];
+
+            return allActivities;
           },
           "invitations",
         );
