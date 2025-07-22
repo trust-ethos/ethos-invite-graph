@@ -84,13 +84,13 @@ export default function UserSearch() {
     }
   };
 
-  const selectUser = (user: EthosUser) => {
+  const selectUser = async (user: EthosUser) => {
     setQuery(user.username || user.displayName || `user-${user.id}`);
     setShowDropdown(false);
     setSelectedIndex(-1);
 
     // Save to recent searches
-    saveToRecentSearches(user);
+    await saveToRecentSearches(user);
 
     // Navigate to analysis page using profileId
     const profileId = user.profileId || user.id;
@@ -103,30 +103,20 @@ export default function UserSearch() {
     globalThis.location.href = `/analysis/${profileId}`;
   };
 
-  const saveToRecentSearches = (user: EthosUser) => {
+  const saveToRecentSearches = async (user: EthosUser) => {
     try {
-      const recentSearches = getRecentSearches();
-
-      // Remove if already exists (to move to front)
-      const filtered = recentSearches.filter((item) =>
-        item.profileId !== user.profileId
+      await fetch("/api/recent-searches", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      });
+      console.log(
+        `💾 Saved global recent search: ${user.username || user.displayName}`,
       );
-
-      // Add to front and limit to 5
-      const updated = [user, ...filtered].slice(0, 5);
-
-      localStorage.setItem("ethos-recent-searches", JSON.stringify(updated));
     } catch (error) {
       console.log("Could not save recent search:", error);
-    }
-  };
-
-  const getRecentSearches = (): EthosUser[] => {
-    try {
-      const stored = localStorage.getItem("ethos-recent-searches");
-      return stored ? JSON.parse(stored) : [];
-    } catch (error) {
-      return [];
     }
   };
 

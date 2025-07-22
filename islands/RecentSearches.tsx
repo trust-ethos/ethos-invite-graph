@@ -8,11 +8,13 @@ export default function RecentSearches() {
     loadRecentSearches();
   }, []);
 
-  const loadRecentSearches = () => {
+  const loadRecentSearches = async () => {
     try {
-      const stored = localStorage.getItem("ethos-recent-searches");
-      if (stored) {
-        setRecentSearches(JSON.parse(stored));
+      const response = await fetch("/api/recent-searches");
+      if (response.ok) {
+        const searches = await response.json();
+        setRecentSearches(searches);
+        console.log(`🌍 Loaded ${searches.length} global recent searches`);
       }
     } catch (error) {
       console.log("Could not load recent searches:", error);
@@ -35,80 +37,120 @@ export default function RecentSearches() {
   };
 
   if (recentSearches.length === 0) {
-    return null; // Don't show anything if no recent searches
+    // Show placeholder cards when no recent searches
+    return (
+      <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16 relative z-10">
+        <div class="group text-center p-8 bg-white/80 backdrop-blur-sm border-4 border-retro-cyan rounded-2xl shadow-retro">
+          <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-retro-cyan to-retro-teal flex items-center justify-center border-4 border-retro-purple shadow-neon">
+            <div class="text-4xl">🔍</div>
+          </div>
+          <h3 class="text-xl font-retro text-retro-purple mb-3 font-black">
+            SEARCH FIRST!
+          </h3>
+          <p class="text-gray-700 font-bold">
+            Use the search above to explore profiles - they'll appear here!
+          </p>
+        </div>
+
+        <div class="group text-center p-8 bg-white/80 backdrop-blur-sm border-4 border-retro-purple rounded-2xl shadow-retro">
+          <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-retro-purple to-retro-magenta flex items-center justify-center border-4 border-retro-cyan shadow-neon-purple">
+            <div class="text-4xl">🌍</div>
+          </div>
+          <h3 class="text-xl font-retro text-retro-cyan mb-3 font-black">
+            GLOBAL RECENT
+          </h3>
+          <p class="text-gray-700 font-bold">
+            See what profiles other users have been exploring recently!
+          </p>
+        </div>
+
+        <div class="group text-center p-8 bg-white/80 backdrop-blur-sm border-4 border-retro-magenta rounded-2xl shadow-retro">
+          <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-retro-magenta to-retro-pink flex items-center justify-center border-4 border-retro-teal shadow-neon">
+            <div class="text-4xl">🚀</div>
+          </div>
+          <h3 class="text-xl font-retro text-retro-teal mb-3 font-black">
+            QUICK ACCESS
+          </h3>
+          <p class="text-gray-700 font-bold">
+            Easily jump back to previously viewed invitation networks!
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div class="w-full max-w-4xl mx-auto mt-12 p-6 bg-white border-4 border-retro-cyan rounded-3xl shadow-retro-lg transform -rotate-1">
-      <div class="flex items-center space-x-3 mb-6">
-        <div class="w-10 h-10 bg-retro-purple rounded-full flex items-center justify-center">
-          <div class="text-white font-black text-lg">⏱</div>
-        </div>
-        <h2 class="text-2xl font-retro font-black text-retro-purple">
-          RECENTLY EXPLORED
-        </h2>
-      </div>
+    <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16 relative z-10">
+      {recentSearches.map((user, index) => {
+        const borderColors = [
+          "border-retro-cyan",
+          "border-retro-purple",
+          "border-retro-magenta",
+        ];
+        const bgGradients = [
+          "from-retro-cyan to-retro-teal",
+          "from-retro-purple to-retro-magenta",
+          "from-retro-magenta to-retro-pink",
+        ];
+        const shadowColors = [
+          "shadow-neon",
+          "shadow-neon-purple",
+          "shadow-neon",
+        ];
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {recentSearches.map((user, index) => (
+        return (
           <div
             key={`${user.profileId}-${index}`}
             onClick={() => navigateToProfile(user)}
-            class="p-4 bg-gradient-to-br from-retro-cyan/10 to-retro-purple/10 border-2 border-retro-cyan rounded-2xl cursor-pointer transition-all duration-200 hover:shadow-retro hover:scale-105 hover:border-retro-purple"
+            class={`group text-center p-8 bg-white/80 backdrop-blur-sm border-4 ${
+              borderColors[index]
+            } rounded-2xl shadow-retro hover:shadow-retro-lg transition-all duration-300 transform hover:scale-105 hover:-rotate-1 cursor-pointer`}
           >
-            <div class="flex items-center space-x-3">
+            <div
+              class={`w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${
+                bgGradients[index]
+              } flex items-center justify-center border-4 border-retro-purple ${
+                shadowColors[index]
+              }`}
+            >
               {user.avatarUrl
                 ? (
                   <img
                     src={user.avatarUrl}
                     alt={user.username || user.displayName}
-                    class="w-12 h-12 rounded-xl object-cover border-2 border-retro-purple shadow-retro flex-shrink-0"
+                    class="w-16 h-16 rounded-xl object-cover"
                   />
                 )
                 : (
-                  <div class="w-12 h-12 bg-gradient-to-br from-retro-teal to-retro-purple rounded-xl flex items-center justify-center text-white font-black text-lg border-2 border-retro-cyan shadow-retro flex-shrink-0">
+                  <div class="text-4xl text-white font-black">
                     {(user.username || user.displayName || "U").charAt(0)
                       .toUpperCase()}
                   </div>
                 )}
-
-              <div class="flex-1 min-w-0">
-                <div class="font-black text-lg truncate text-gray-800">
-                  {user.username || user.displayName}
-                </div>
-                {user.displayName && user.username !== user.displayName && (
-                  <div class="text-sm text-retro-purple font-bold truncate">
-                    {user.displayName}
-                  </div>
-                )}
-                {user.score !== undefined && (
-                  <div class="mt-2">
-                    <div
-                      class={`inline-block text-xs text-white font-black ${
-                        getScoreColor(user.score)
-                      } px-2 py-1 rounded-full border border-retro-purple`}
-                    >
-                      {user.score}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div class="text-retro-purple flex-shrink-0">
-                <div class="w-6 h-6 bg-retro-magenta rounded-full flex items-center justify-center border border-retro-cyan">
-                  <div class="text-white font-black text-xs">→</div>
-                </div>
-              </div>
             </div>
-          </div>
-        ))}
-      </div>
 
-      <div class="mt-4 text-center">
-        <div class="text-xs text-gray-500 font-medium">
-          Your last {recentSearches.length} searches • Click to explore again!
-        </div>
-      </div>
+            <h3 class="text-xl font-retro text-retro-purple mb-2 font-black truncate">
+              @{user.username || user.displayName}
+            </h3>
+
+            {user.score !== undefined && (
+              <div class="mb-3">
+                <div
+                  class={`inline-block text-sm text-white font-black ${
+                    getScoreColor(user.score)
+                  } px-3 py-1 rounded-full border-2 border-retro-purple shadow-retro`}
+                >
+                  SCORE: {user.score}
+                </div>
+              </div>
+            )}
+
+            <p class="text-gray-700 font-bold text-sm">
+              Recently explored profile • Click to revisit!
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 }

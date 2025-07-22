@@ -8,6 +8,7 @@ import * as $api_cache_stats from "./routes/api/cache-stats.ts";
 import * as $api_invitations_profileId_ from "./routes/api/invitations/[profileId].ts";
 import * as $api_network_profileId_ from "./routes/api/network/[profileId].ts";
 import * as $api_profile_enhanced_profileId_ from "./routes/api/profile-enhanced/[profileId].ts";
+import * as $api_recent_searches from "./routes/api/recent-searches.ts";
 import * as $api_search_users from "./routes/api/search-users.ts";
 import * as $index from "./routes/index.tsx";
 import * as $InvitedUsersList from "./islands/InvitedUsersList.tsx";
@@ -26,6 +27,7 @@ const manifest = {
     "./routes/api/network/[profileId].ts": $api_network_profileId_,
     "./routes/api/profile-enhanced/[profileId].ts":
       $api_profile_enhanced_profileId_,
+    "./routes/api/recent-searches.ts": $api_recent_searches,
     "./routes/api/search-users.ts": $api_search_users,
     "./routes/index.tsx": $index,
   },

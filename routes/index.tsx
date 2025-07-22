@@ -67,47 +67,8 @@ export default function Home({}: PageProps) {
           </div>
         </div>
 
-        {/* Recent Searches */}
+        {/* Recent Global Searches - Replaces Feature Cards */}
         <RecentSearches />
-
-        {/* Features Grid - adjusted z-index */}
-        <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16 relative z-10">
-          <div class="group text-center p-8 bg-white/80 backdrop-blur-sm border-4 border-retro-cyan rounded-2xl shadow-retro hover:shadow-retro-lg transition-all duration-300 transform hover:scale-105 hover:-rotate-1">
-            <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-retro-cyan to-retro-teal flex items-center justify-center border-4 border-retro-purple shadow-neon">
-              <div class="text-4xl">🔍</div>
-            </div>
-            <h3 class="text-xl font-retro text-retro-purple mb-3 font-black">
-              SUPER SEARCH
-            </h3>
-            <p class="text-gray-700 font-bold">
-              Find users with our totally awesome search engine!
-            </p>
-          </div>
-
-          <div class="group text-center p-8 bg-white/80 backdrop-blur-sm border-4 border-retro-purple rounded-2xl shadow-retro hover:shadow-retro-lg transition-all duration-300 transform hover:scale-105 hover:rotate-1">
-            <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-retro-purple to-retro-magenta flex items-center justify-center border-4 border-retro-cyan shadow-neon-purple">
-              <div class="text-4xl">🕸️</div>
-            </div>
-            <h3 class="text-xl font-retro text-retro-cyan mb-3 font-black">
-              NETWORK MAPPING
-            </h3>
-            <p class="text-gray-700 font-bold">
-              Explore radical trust connections and invitations!
-            </p>
-          </div>
-
-          <div class="group text-center p-8 bg-white/80 backdrop-blur-sm border-4 border-retro-magenta rounded-2xl shadow-retro hover:shadow-retro-lg transition-all duration-300 transform hover:scale-105 hover:-rotate-1">
-            <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-retro-magenta to-retro-pink flex items-center justify-center border-4 border-retro-teal shadow-neon">
-              <div class="text-4xl">📊</div>
-            </div>
-            <h3 class="text-xl font-retro text-retro-teal mb-3 font-black">
-              VISUAL STATS
-            </h3>
-            <p class="text-gray-700 font-bold">
-              See your network data in totally tubular graphs!
-            </p>
-          </div>
-        </div>
 
         {/* Bottom banner */}
         <div class="text-center relative z-10">
