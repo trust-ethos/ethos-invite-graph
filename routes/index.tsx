@@ -1,5 +1,6 @@
 import { PageProps } from "$fresh/server.ts";
 import UserSearch from "../islands/UserSearch.tsx";
+import RecentSearches from "../islands/RecentSearches.tsx";
 
 export default function Home({}: PageProps) {
   return (
@@ -65,6 +66,9 @@ export default function Home({}: PageProps) {
             </div>
           </div>
         </div>
+
+        {/* Recent Searches */}
+        <RecentSearches />
 
         {/* Features Grid - adjusted z-index */}
         <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16 relative z-10">

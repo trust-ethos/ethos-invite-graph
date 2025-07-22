@@ -114,6 +114,10 @@ export const handler = async (
             const limit = 100;
             let hasMore = true;
 
+            console.log(
+              `🔍 Starting paginated fetch for profile ${currentProfileId}`,
+            );
+
             while (hasMore) {
               const activitiesUrl = new URL(
                 `${ETHOS_API_BASE_V2}/activities/userkey`,
@@ -127,6 +131,9 @@ export const handler = async (
               activitiesUrl.searchParams.set("limit", limit.toString());
               activitiesUrl.searchParams.set("offset", offset.toString());
 
+              console.log(`📄 Fetching page: offset=${offset}, limit=${limit}`);
+              console.log(`🌐 URL: ${activitiesUrl.toString()}`);
+
               const activitiesResponse = await fetch(activitiesUrl.toString(), {
                 headers: {
                   "Accept": "application/json",
@@ -137,16 +144,31 @@ export const handler = async (
 
               if (activitiesResponse.ok) {
                 const pageData = await activitiesResponse.json();
+                console.log(
+                  `📊 Page ${
+                    offset / limit + 1
+                  }: Got ${pageData.length} results`,
+                );
                 allActivities.push(...pageData);
 
                 // Check if we got fewer results than requested (end of data)
                 hasMore = pageData.length === limit;
                 offset += limit;
+
+                console.log(
+                  `🔄 hasMore=${hasMore}, totalSoFar=${allActivities.length}`,
+                );
               } else {
+                console.log(
+                  `❌ Error fetching page: ${activitiesResponse.status}`,
+                );
                 hasMore = false;
               }
             }
 
+            console.log(
+              `✅ Pagination complete: ${allActivities.length} total activities`,
+            );
             return allActivities;
           },
           "invitations",

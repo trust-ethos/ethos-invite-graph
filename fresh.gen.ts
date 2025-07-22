@@ -13,6 +13,7 @@ import * as $index from "./routes/index.tsx";
 import * as $InvitedUsersList from "./islands/InvitedUsersList.tsx";
 import * as $NetworkVisualization from "./islands/NetworkVisualization.tsx";
 import * as $ProfileAnalysis from "./islands/ProfileAnalysis.tsx";
+import * as $RecentSearches from "./islands/RecentSearches.tsx";
 import * as $UserSearch from "./islands/UserSearch.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
@@ -32,6 +33,7 @@ const manifest = {
     "./islands/InvitedUsersList.tsx": $InvitedUsersList,
     "./islands/NetworkVisualization.tsx": $NetworkVisualization,
     "./islands/ProfileAnalysis.tsx": $ProfileAnalysis,
+    "./islands/RecentSearches.tsx": $RecentSearches,
     "./islands/UserSearch.tsx": $UserSearch,
   },
   baseUrl: import.meta.url,
