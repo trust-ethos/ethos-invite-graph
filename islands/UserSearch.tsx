@@ -32,7 +32,9 @@ export default function UserSearch() {
           );
           if (response.ok) {
             const data: EthosUserSearchResponse = await response.json();
-            setUsers(data.values || []);
+            // Filter to only show active profiles
+            const activeUsers = (data.values || []).filter(user => user.status === "ACTIVE");
+            setUsers(activeUsers);
             setShowDropdown(true);
           }
         } catch (error) {
