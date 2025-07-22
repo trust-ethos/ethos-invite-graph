@@ -23,6 +23,12 @@ export default function ProfileAnalysis({ userkey }: ProfileAnalysisProps) {
     return "bg-retro-purple"; // revered
   };
 
+  // Text color function for optimal contrast on score backgrounds
+  const getScoreTextColor = (score: number): string => {
+    if (score >= 2000 && score < 2400) return "text-retro-purple"; // purple text on green background
+    return "text-white"; // white text on other backgrounds
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -171,7 +177,9 @@ export default function ProfileAnalysis({ userkey }: ProfileAnalysisProps) {
                   <div
                     class={`px-4 py-2 ${
                       getScoreColor(profile.actor.score || 0)
-                    } border-2 border-retro-purple rounded-xl font-retro font-black text-white shadow-retro`}
+                    } border-2 border-retro-purple rounded-xl font-retro font-black ${
+                      getScoreTextColor(profile.actor.score || 0)
+                    } shadow-retro`}
                   >
                     {profile.actor.score}
                   </div>
