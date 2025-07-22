@@ -136,13 +136,6 @@ export default function RecentSearches() {
         <h2 class="text-3xl font-retro font-black text-retro-purple mb-2">
           🎠 RECENTLY EXPLORED PROFILES
         </h2>
-        <p class="text-lg text-gray-700 font-bold">
-          {recentSearches.length > 3
-            ? `Showing ${currentIndex + 1}-${
-              Math.min(currentIndex + 3, recentSearches.length)
-            } of ${recentSearches.length} • Auto-advancing`
-            : `${recentSearches.length} recent searches`}
-        </p>
       </div>
 
       {/* Carousel Container */}
@@ -232,10 +225,6 @@ export default function RecentSearches() {
                     </div>
                   </div>
                 )}
-
-                <p class="text-gray-700 font-bold text-sm">
-                  Recently explored profile • Click to revisit!
-                </p>
               </div>
             );
           })}
