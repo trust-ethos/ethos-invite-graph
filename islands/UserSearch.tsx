@@ -12,6 +12,16 @@ export default function UserSearch() {
   const searchRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Color function based on credibility score (matching profile analysis)
+  const getScoreColor = (score: number): string => {
+    if (score < 800) return 'bg-retro-pink'; // untrusted
+    if (score < 1200) return 'bg-retro-yellow'; // questionable
+    if (score < 1600) return 'bg-gray-700'; // neutral
+    if (score < 2000) return 'bg-retro-cyan'; // reputable
+    if (score < 2400) return 'bg-retro-lime'; // exemplary
+    return 'bg-retro-purple'; // revered
+  };
+
   useEffect(() => {
     const timeoutId = setTimeout(async () => {
       if (query.length >= 2) {
@@ -179,7 +189,7 @@ export default function UserSearch() {
                   )}
                   {user.score !== undefined && (
                     <div class="flex items-center space-x-2 mt-2">
-                      <div class="text-xs text-white font-black bg-retro-teal px-3 py-1 rounded-full border-2 border-retro-purple shadow-retro">
+                      <div class={`text-xs text-white font-black ${getScoreColor(user.score)} px-3 py-1 rounded-full border-2 border-retro-purple shadow-retro`}>
                         SCORE: {user.score}
                       </div>
                     </div>
