@@ -4,7 +4,7 @@ import { FreshContext } from "$fresh/server.ts";
 import { EthosUser } from "../../types/ethos.ts";
 
 const RECENT_SEARCHES_KEY = ["global", "recent-searches"];
-const MAX_RECENT_SEARCHES = 10; // Keep more in storage, show 3
+const MAX_RECENT_SEARCHES = 20; // Keep more in storage for carousel
 
 export const handler = async (
   req: Request,
@@ -63,13 +63,15 @@ export const handler = async (
       const result = await kv.get<EthosUser[]>(RECENT_SEARCHES_KEY);
       const recentSearches = result.value || [];
 
-      // Return only the top 3 for display
-      const topThree = recentSearches.slice(0, 3);
+      // Return up to 15 for carousel display
+      const carouselSearches = recentSearches.slice(0, 15);
 
-      console.log(`🌍 Retrieved ${topThree.length} recent searches from KV`);
+      console.log(
+        `🎠 Retrieved ${carouselSearches.length} recent searches from KV for carousel`,
+      );
 
       kv.close();
-      return new Response(JSON.stringify(topThree), {
+      return new Response(JSON.stringify(carouselSearches), {
         status: 200,
         headers: {
           "Content-Type": "application/json",

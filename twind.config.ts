@@ -63,6 +63,7 @@ export default {
         "retro-glow": "retro-glow 2s ease-in-out infinite alternate",
         "slide-in": "slide-in 0.5s ease-out",
         "zoom-in": "zoom-in 0.3s ease-out",
+        "fadeIn": "fadeIn 0.5s ease-out",
       },
       keyframes: {
         wiggle: {
@@ -86,6 +87,10 @@ export default {
         "zoom-in": {
           "from": { transform: "scale(0.95)", opacity: "0" },
           "to": { transform: "scale(1)", opacity: "1" },
+        },
+        "fadeIn": {
+          "from": { opacity: "0", transform: "translateY(10px)" },
+          "to": { opacity: "1", transform: "translateY(0)" },
         },
       },
       backgroundImage: {
