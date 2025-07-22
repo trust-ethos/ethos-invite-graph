@@ -134,7 +134,7 @@ export default function RecentSearches() {
       {/* Header */}
       <div class="text-center mb-8">
         <h2 class="text-3xl font-retro font-black text-retro-purple mb-2">
-          🎠 RECENTLY EXPLORED PROFILES
+          RECENTLY EXPLORED PROFILES
         </h2>
       </div>
 
@@ -210,9 +210,22 @@ export default function RecentSearches() {
                     )}
                 </div>
 
-                <h3 class="text-xl font-retro text-retro-purple mb-2 font-black truncate">
+                <h3 class="text-xl font-retro text-retro-purple mb-1 font-black truncate">
                   @{user.username || user.displayName}
                 </h3>
+
+                <div class="text-sm text-gray-600 font-bold mb-2">
+                  {user.networkStats
+                    ? (
+                      <>
+                        {user.networkStats.nodes} nodes •{" "}
+                        {user.networkStats.connections} connections
+                      </>
+                    )
+                    : (
+                      <span class="text-gray-400">Network data loading...</span>
+                    )}
+                </div>
 
                 {user.score !== undefined && (
                   <div class="mb-3">

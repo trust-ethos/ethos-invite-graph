@@ -17,6 +17,36 @@ export const handler = async (
     try {
       const user: EthosUser = await req.json();
 
+      // Fetch network stats for this user if we don't have them
+      if (!user.networkStats && user.profileId) {
+        try {
+          const networkUrl = new URL(
+            `${
+              Deno.env.get("DENO_DEPLOYMENT_ID")
+                ? "https://" + req.headers.get("host")
+                : "http://localhost:8000"
+            }/api/network/${user.profileId}`,
+          );
+          const networkResponse = await fetch(networkUrl.toString());
+          if (networkResponse.ok) {
+            const networkData = await networkResponse.json();
+            user.networkStats = {
+              nodes: networkData.totalNodes || 0,
+              connections: networkData.edges?.length || 0,
+            };
+            console.log(
+              `📊 Fetched network stats for ${user.username}: ${user.networkStats.nodes} nodes, ${user.networkStats.connections} connections`,
+            );
+          }
+        } catch (networkError) {
+          console.log(
+            `⚠️ Could not fetch network stats for ${user.username}:`,
+            networkError,
+          );
+          // Continue without network stats
+        }
+      }
+
       // Get current recent searches from KV
       const result = await kv.get<EthosUser[]>(RECENT_SEARCHES_KEY);
       const currentSearches = result.value || [];

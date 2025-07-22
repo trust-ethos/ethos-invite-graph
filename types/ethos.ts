@@ -15,6 +15,10 @@ export interface EthosUser {
     profile?: string;
     scoreBreakdown?: string;
   };
+  networkStats?: {
+    nodes: number;
+    connections: number;
+  };
   stats?: {
     review?: {
       received?: {
