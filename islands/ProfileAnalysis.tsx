@@ -176,7 +176,7 @@ export default function ProfileAnalysis({ userkey }: ProfileAnalysisProps) {
                     {profile.actor.score}
                   </div>
                   {profile.invitesAvailable !== undefined && (
-                    <div class="px-3 py-1 bg-retro-lime border-2 border-retro-purple rounded-xl font-retro font-black text-retro-purple shadow-retro text-sm">
+                    <div class="px-4 py-2 bg-retro-lime border-2 border-retro-purple rounded-xl font-retro font-black text-retro-purple shadow-retro">
                       {profile.invitesAvailable} invites
                     </div>
                   )}
